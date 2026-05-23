@@ -59,7 +59,7 @@ below are the remaining work. Nothing here is started — it's the plan.
    build metadata instead of the hardcoded `0.0.1` in
    `HarnessMain` `clientInfo` / `pom.xml` `0.0.1-SNAPSHOT`; tag an
    `alpha`/`beta`.)
-6. **CI from a clean checkout. — DONE.** `.github/workflows/ci.yml`:
+6. **CI from a clean checkout. — DONE & GREEN.** `.github/workflows/ci.yml`:
    matrix `ubuntu-latest` + `macos-latest` (`fail-fast: false`), JDK 25,
    `bash scripts/bootstrap.sh` → `./mvnw -B -ntp clean test package` →
    `bash scripts/smoke.sh`. The smoke script (committed, also the
@@ -67,12 +67,17 @@ below are the remaining work. Nothing here is started — it's the plan.
    `src/test/resources/sample-boot-app/` and asserts the
    fixture-deterministic tuple (project, Boot 4.0.6, 6 named beans, 2
    mapping paths, injection point — **not** Java version, per CR-001),
-   fail-loud non-zero on mismatch or readiness timeout. Validated
-   locally (PASS). `vendor/` intentionally **not** cached + a weekly
-   `schedule` so it stays the rot-detector for the pinned upstream URLs;
-   `~/.m2` cached. Read-only `permissions`, job `timeout-minutes`
-   backstop. Follow-ups (not blocking): SHA-pin the actions; CI badge +
-   ubuntu-only fallback once the repo is published.
+   fail-loud non-zero on mismatch or readiness timeout. **First-run
+   proof:** success on both runners — ubuntu-latest 54s, macos-latest
+   46s; 24/24 unit tests pass; smoke 7/7 assertions match locally
+   ([run 26319168502](https://github.com/zlsimon-personal/sts5-headless/actions/runs/26319168502)).
+   `vendor/` intentionally **not** cached + a weekly `schedule` so it
+   stays the rot-detector for the pinned upstream URLs; `~/.m2` cached.
+   Read-only `permissions`, job `timeout-minutes` backstop. Follow-ups
+   (not blocking): SHA-pin the actions; bump action versions when
+   upstream tags v5 (the v4 actions currently warn about Node.js 20
+   deprecation — forced to Node 24 on 2026-06-02, removed 2026-09-16);
+   CI badge.
 7. **`docs/` reorganization.** Keep `decision-record.md` +
    `multiproject-design.md` (current architecture) on the main path; move
    `harness-design.md`, `path-b-design.md`, `sizing-probe.md`,

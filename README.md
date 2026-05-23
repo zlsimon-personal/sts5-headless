@@ -57,8 +57,9 @@ Design history and rationale live in [`docs/`](docs/) (start with
   need 21+ — see [Limitations](#limitations) re: lowering this).
 - **macOS** for the `sts5-mcp-shim.sh` lifecycle shim (uses BSD `stat -f`;
   Linux is untested). The Java harness itself is OS-agnostic — the CI
-  smoke matrix covers `ubuntu-latest` + `macos-latest` (that run is
-  pending repo publish; local validation so far is macOS only).
+  smoke matrix covers `ubuntu-latest` + `macos-latest` and passes
+  end-to-end on both
+  ([first run](https://github.com/zlsimon-personal/sts5-headless/actions/runs/26319168502)).
 - `node`/`npx` (the shim uses [`mcp-remote`](https://www.npmjs.com/package/mcp-remote)
   as the stdio↔HTTP bridge), `curl`, `bash`.
 - Claude Code CLI (for the `claude mcp` registration).
@@ -187,9 +188,10 @@ not asserted):
 ## Limitations
 
 - **Tested surface is narrow:** single-module **Maven** Spring Boot
-  projects, macOS arm64, JDK 25. Linux is in the CI smoke matrix
-  (`ubuntu-latest`) but that run is pending repo publish; multi-module
-  and Gradle are unverified; the shim is macOS-only today.
+  projects, macOS arm64, JDK 25 locally; the headless harness + smoke
+  also pass on `ubuntu-latest` and `macos-latest` in CI under Temurin
+  25 ([first run](https://github.com/zlsimon-personal/sts5-headless/actions/runs/26319168502)).
+  Multi-module and Gradle are unverified; the shim is macOS-only today.
 - **JDK 25** is the current build target. The source uses no 25-only
   features and the underlying servers need only 21+; lowering the target to
   21 for broader adoption is a known, not-yet-done item.
