@@ -73,11 +73,10 @@ below are the remaining work. Nothing here is started — it's the plan.
    ([run 26319168502](https://github.com/zlsimon-personal/sts5-headless/actions/runs/26319168502)).
    `vendor/` intentionally **not** cached + a weekly `schedule` so it
    stays the rot-detector for the pinned upstream URLs; `~/.m2` cached.
-   Read-only `permissions`, job `timeout-minutes` backstop. Follow-ups
-   (not blocking): SHA-pin the actions; bump action versions when
-   upstream tags v5 (the v4 actions currently warn about Node.js 20
-   deprecation — forced to Node 24 on 2026-06-02, removed 2026-09-16);
-   CI badge.
+   Read-only `permissions`, job `timeout-minutes` backstop. Actions
+   pinned at `@v5` (Node 24, ahead of the 2026-06-02 GitHub
+   force-flip). Follow-ups (not blocking): SHA-pin the actions; CI
+   badge.
 7. **`docs/` reorganization.** Keep `decision-record.md` +
    `multiproject-design.md` (current architecture) on the main path; move
    `harness-design.md`, `path-b-design.md`, `sizing-probe.md`,
