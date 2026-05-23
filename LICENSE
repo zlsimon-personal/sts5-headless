@@ -1,0 +1,10 @@
+Eclipse Public License - v 2.0
+
+This project is licensed under the Eclipse Public License, version 2.0
+(EPL-2.0), the same license as Spring Tools 5 (the upstream project this
+harness depends on).
+
+Full license text: https://www.eclipse.org/legal/epl-2.0/
+SPDX-License-Identifier: EPL-2.0
+
+Copyright (c) 2026 Zachary Simonetti

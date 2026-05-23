@@ -1,0 +1,36 @@
+# Maven
+target/
+*.jar
+!**/lib/*.jar
+.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+
+# Claude Code local/dev state (not shipped — kept locally for session
+# continuity; see CLAUDE.md). Was tracked; untracked for the public repo.
+.claude/
+
+# Serena MCP tooling config (local agent state, not a deliverable)
+.serena/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+
+# Local artifacts pulled from STS5 .vsix during dev (Task 2 of the plan)
+vendor/
+*.vsix
+
+# Logs
+*.log
+logs/
+
+# Local env
+.env
+.env.local

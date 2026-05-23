@@ -1,0 +1,66 @@
+name: CI
+
+# Clean-checkout build + headless end-to-end smoke against the bundled
+# sample-boot-app fixture. The weekly schedule also makes this the
+# rot-detector for the pinned upstream URLs in third_party.lock
+# (bootstrap re-verifies SHA-256 every run; vendor/ is intentionally
+# NOT cached so a moved/changed upstream artifact fails loudly).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC — upstream-URL rot check
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# event_name is in the group so a push on main cannot cancel the weekly
+# `schedule` rot-detector run (they share refs/heads/main otherwise).
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: build + smoke (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      # NOTE: actions are pinned to major version tags (mutable). Full
+      # commit-SHA pinning is a tracked hardening follow-up
+      # (docs/release-readiness.md #6) — deliberately deferred, not
+      # overlooked: authentic SHAs can't be resolved in the dev env and
+      # a guessed SHA is worse than a tag.
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Cache ~/.m2 (Maven Central — speeds the jdt.ls import)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('pom.xml', 'src/test/resources/sample-boot-app/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      # vendor/ deliberately uncached: every run re-downloads + SHA-256
+      # verifies the pinned STS5 .vsix and jdt.ls, so a moved or tampered
+      # upstream artifact fails the build instead of going unnoticed.
+      - name: Bootstrap vendored runtimes (fetch + verify)
+        run: bash scripts/bootstrap.sh
+
+      - name: Build + unit tests
+        run: ./mvnw -B -ntp clean test package
+
+      - name: Headless end-to-end smoke (sample-boot-app)
+        run: bash scripts/smoke.sh

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal Spring Boot fixture for sts5-headless. NOT a module of the
+  harness build (it lives under src/test/resources and is never reactor-
+  built); the harness points jdt.ls at this directory so the embedded
+  STS5 MCP tools have a real, public, reproducible project to index.
+  Deterministic by construction: explicit components only, no DB / no
+  conditional or auto-configured beans that would vary run to run.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.6</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>sample-boot-app</artifactId>
+    <version>0.0.1</version>
+    <name>sample-boot-app</name>
+    <description>Reproducible Spring Boot fixture for sts5-headless smoke/CI</description>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!--
+          spring-data-commons only (no JPA/JDBC/Hibernate/datasource): the
+          lightest Spring Data flavor. Version managed by Spring Boot
+          (spring-data-bom). It gives a real CrudRepository interface so
+          Spring Tools' Spring Data repository modeling is exercised,
+          while keeping the bean graph fully deterministic (no DB / no
+          auto-configured datasource beans).
+        -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+    </dependencies>
+</project>

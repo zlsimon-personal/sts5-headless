@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      Plain-Java harness — NOT a Spring app. The STS5 language-server jar is
+      fully self-contained (its own Spring Boot 4.0.1 / Spring AI 2.0.0-M2 /
+      embedded Tomcat / MCP server) and runs OUT OF PROCESS. This harness only
+      acts as the LSP client over the dial-back socket + supervises the child.
+
+      Rationale + the spike evidence that reversed the earlier Spring
+      scaffold: docs/sts5-anatomy.md, docs/decision-record.md.
+    -->
+
+    <groupId>dev.zsimonetti</groupId>
+    <artifactId>sts5-headless</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--
+          STS5 5.1.1 bundles org.eclipse.lsp4j 1.0.0, which is not on Maven
+          Central (Central tops at 0.24.0). LSP4J keeps LSP JSON-RPC wire
+          compatibility; the harness only uses initialize/initialized/
+          notifications. See docs/harness-design.md for the skew assumption
+          and the vendored-1.0.0 fallback.
+        -->
+        <lsp4j.version>0.24.0</lsp4j.version>
+        <junit.version>5.11.4</junit.version>
+        <mainClass>dev.zsimonetti.sts5headless.HarnessMain</mainClass>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j</artifactId>
+            <version>${lsp4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>sts5-headless</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+
+            <!-- Runnable fat jar: java -jar target/sts5-headless.jar <project-path> -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <!-- Strip signed-jar signature files; they don't
+                                 match once classes are merged into the fat jar
+                                 (SecurityException: Invalid signature file). -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${mainClass}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
